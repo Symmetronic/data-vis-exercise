@@ -1,1 +1,1 @@
-# data-vis-exercise
+# DataVis Exercise
