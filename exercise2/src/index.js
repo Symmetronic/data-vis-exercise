@@ -28,6 +28,8 @@ function createScatterPlot() {
 	let svg = createSvg();
 
 	// TODO: Implement
+	getData();
+
 }
 
 /* Creates a star plot. */
@@ -45,6 +47,28 @@ function createSvg() {
 		.append('g')
 			.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 }
+
+function getData() {
+	d3.csv("cars.csv").then(function(carData) {
+		carData.forEach(function(car) {
+			car.AWD = +car.AWD;
+			car["City Miles Per Gallon"] = +car["City Miles Per Gallon"];
+			car["Highway Miles Per Gallon"] = +car["Highway Miles Per Gallon"];
+			car.Cyl = +car.Cyl;
+			car["Horsepower(HP)"] = +car["Horsepower(HP)"];
+			car.Len = + car.Len;
+			car["Engine Size (l)"] = +car["Engine Size (l)"];
+			car["Retail Price"] = +car["Retail Price"];	
+			car["Dealer Cost"] = +car["Dealer Cost"];
+			car.RWD = +car.RWD;
+			car.Weight = +car.Weight;
+			car.Width = +car.Width;
+			car["Wheel Base"] = +car["Wheel Base"];
+		});
+		console.log(carData);
+	}); 
+}
+
 
 /* Run program. */
 function main() {
