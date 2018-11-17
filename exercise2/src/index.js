@@ -13,62 +13,58 @@ const height = 500 - margin.top - margin.bottom;
  * Creates a parallel coordinates plot.
  */
 // SOURCE: Modified from https://bl.ocks.org/jasondavies/1341281
-function createParallelCoordinatesPlot() {
-	let x = d3.scaleOrdinal([0, width]);
-	let y = {};
-	let svg = createSvg();
+function createParallelCoordinatesPlot(cars) {
+	console.log(cars);
+	// let x = d3.scaleOrdinal([0, width]);
+	// let y = {};
+	// let svg = createSvg();
+	// let axis = d3.svg.axis().orient('left');
+	// let dimensions;
+	// 
+	// /* X and y axes. */
+	// x.domain(dimensions = d3.keys(cars[0]).filter(function(dimension) {
+	// 	return dimension !== 'Name'
+	// 		&& (y[dimension] = d3.scaleLinear()
+	// 			.domain(d3.extent(cars, function(p) { return +p[d]; }))
+	// 			.range([height, 0]));
+	// }));
 
-	d3.csv('cars.csv').then(function(cars) {
-		console.log(cars);
+	// /* Background lines. */
+	// let background = svg.append('g')
+	// 		.attr('class', 'background')
+	// 	.selectAll('path')
+	// 		.data(cars)
+	// 	.enter().append('path')
+	// 		.attr('d', path);
 
-		let axis = d3.svg.axis().orient('left');
-		let dimensions;
+	// /* Foreground lines. */
+	// let foreground = svg.append('g')
+	// 		.attr('class', 'foreground')
+	// 	.selectAll('path')
+	// 		.data('cars')
+	// 	.enter().append('path')
+	// 		.attr('d', path);
 
-		/* X and y axes. */
-		x.domain(dimensions = d3.keys(cars[0]).filter(function(dimension) {
-			return dimension !== 'Name'
-				&& (y[dimension] = d3.scaleLinear()
-					.domain(d3.extent(cars, function(p) { return +p[d]; }))
-					.range([height, 0]));
-		}));
+	// /* Group element for each dimension. */
+	// let g = svg.selectAll('.dimension')
+	// 		.data(dimensions)
+	// 	.enter().append('g')
+	// 		.attr('class', 'dimension')
+	// 		.attr('transform', function(dimension) { return 'translate(' + x(dimension) + ')'; });
+	
+	// /* Add an axis and title. */
+	// g.append('g')
+	// 		.attr('class', 'axis')
+	// 		.each(function(dimension) { d3.select(this).call(axis.scale(y[dimension])); })
+	// 	.append('text')
+	// 		.style('text-anchor', 'middle')
+	// 		.attr('y', -9)
+	// 		.text(function(dimension) { return d; });
 
-		/* Background lines. */
-		let background = svg.append('g')
-			    .attr('class', 'background')
-			.selectAll('path')
-				.data(cars)
-			.enter().append('path')
-				.attr('d', path);
-
-		/* Foreground lines. */
-		let foreground = svg.append('g')
-				.attr('class', 'foreground')
-			.selectAll('path')
-				.data('cars')
-			.enter().append('path')
-				.attr('d', path);
-
-		/* Group element for each dimension. */
-		let g = svg.selectAll('.dimension')
-				.data(dimensions)
-			.enter().append('g')
-				.attr('class', 'dimension')
-				.attr('transform', function(dimension) { return 'translate(' + x(dimension) + ')'; });
-		
-		/* Add an axis and title. */
-		g.append('g')
-				.attr('class', 'axis')
-				.each(function(dimension) { d3.select(this).call(axis.scale(y[dimension])); })
-			.append('text')
-				.style('text-anchor', 'middle')
-				.attr('y', -9)
-				.text(function(dimension) { return d; });
-
-		// Returns the path for a given data point.
-		function path(d) {
-			return line(dimensions.map(function(p) { return [position(p), y[p](d[p])]; }));
-		}
-	});
+	// // Returns the path for a given data point.
+	// function path(d) {
+	// 	return line(dimensions.map(function(p) { return [position(p), y[p](d[p])]; }));
+	// }
 
 	// TODO: Implement
 }
@@ -76,20 +72,18 @@ function createParallelCoordinatesPlot() {
 /**
  * Creates a scatter plot.
  */
-function createScatterPlot() {
+function createScatterPlot(cars) {
+	console.log(cars);
+		
 	let svg = createSvg();
-
 	// TODO: Implement
-	getData();
-
 }
 
 /**
  * Creates a star plot.
  */
-function createStarPlot() {
+function createStarPlot(cars) {
 	let svg = createSvg();
-
 	// TODO: Implement
 }
 
@@ -104,34 +98,51 @@ function createSvg() {
 			.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 }
 
-function getData() {
-	d3.csv("cars.csv").then(function(carData) {
-		carData.forEach(function(car) {
-			car.AWD = +car.AWD;
-			car["City Miles Per Gallon"] = +car["City Miles Per Gallon"];
-			car["Highway Miles Per Gallon"] = +car["Highway Miles Per Gallon"];
-			car.Cyl = +car.Cyl;
-			car["Horsepower(HP)"] = +car["Horsepower(HP)"];
-			car.Len = + car.Len;
-			car["Engine Size (l)"] = +car["Engine Size (l)"];
-			car["Retail Price"] = +car["Retail Price"];	
-			car["Dealer Cost"] = +car["Dealer Cost"];
-			car.RWD = +car.RWD;
-			car.Weight = +car.Weight;
-			car.Width = +car.Width;
-			car["Wheel Base"] = +car["Wheel Base"];
-		});
-		console.log(carData);
-	}); 
+/**
+ * Clones an object.
+ * @param obj The object to be cloned.
+ */
+// SOURCE: https://stackoverflow.com/a/23481096
+function clone(obj) {
+	return JSON.parse(JSON.stringify(obj));
 }
+
+/**
+ * Returns a promise of the parsed car data.
+ */
+function getData() {
+	return d3.csv("cars.csv").then(function(cars) {
+	    return Promise.resolve(cars.map(function(car) {
+			return Object.keys(car).reduce(function(parsedCar, key) {
+				let value = car[key];
+				parsedCar[key] = isNumeric(value)
+					? parseFloat(value)
+					: value;
+				return parsedCar;
+			}, {});
+	  }));
+	});
+}
+
+/**
+ * Returns true, if the value is numeric.
+ * @param n The value that should be checked.
+ */
+// SOURCE: https://stackoverflow.com/a/9716488
+function isNumeric(n) {
+	return !isNaN(parseFloat(n)) && isFinite(n);
+} 
 
 /**
  * Runs the program.
  */
 function main() {
-	createParallelCoordinatesPlot();
-	createScatterPlot();
-	createStarPlot();
+	this.getData()
+	    .then(function(cars) {
+			createParallelCoordinatesPlot(clone(cars));
+			createScatterPlot(clone(cars));
+			createStarPlot(clone(cars));
+		});
 }
 
 window.onload = function() {
