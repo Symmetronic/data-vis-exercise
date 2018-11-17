@@ -8,10 +8,32 @@ function createParallelCoordinatesPlot(cars) {
 	
 	let svg = createSvg();
 	
-	// let x = d3.scaleOrdinal([0, width]);
+	// let x = d3.scaleOrdinal()
+	// 	.domain([0, width])
+	// 	.range(1);
 	// let y = {};
-	// let axis = d3.svg.axis().orient('left');
-	// let dimensions;
+	// let axis = d3.axisLeft();
+
+	let dimensions = Object.keys(cars[0]).filter(function(dimension) {
+		return dimension !== 'Name';
+	});
+	console.log(dimensions);
+	
+	// let dimensionGs = svg.selectAll('.dimension')
+	// 		.data(dimensions)
+	// 	.enter().append('g')
+	// 		.attr('class', 'dimension')
+	// 		.attr('transform', function(dimension) {
+	// 			return 'translate(' + x(dimension) + ')';
+	// 		});
+	
+	// dimensionGs.append('g')
+	// 	.call(axis);
+	
+	// TODO: Implement
+
+	
+	
 	// 
 	// /* X and y axes. */
 	// x.domain(dimensions = d3.keys(cars[0]).filter(function(dimension) {
@@ -58,12 +80,11 @@ function createParallelCoordinatesPlot(cars) {
 			// 	return line(dimensions.map(function(p) { return [position(p), y[p](d[p])]; }));
 			// }
 			
-			// TODO: Implement
 }
-		
-		/**
-		 * Creates a scatter plot.
-		 */
+
+/**
+ * Creates a scatter plot.
+ */
 function createScatterPlot(cars) {
 	console.log('create scatter plot');
 	
