@@ -8,28 +8,35 @@ function createParallelCoordinatesPlot(cars) {
 	
 	let svg = createSvg();
 	
-	// let x = d3.scaleOrdinal()
-	// 	.domain([0, width])
-	// 	.range(1);
-	// let y = {};
-	// let axis = d3.axisLeft();
-
+	/* Determine variables. */
 	let dimensions = Object.keys(cars[0]).filter(function(dimension) {
-		return dimension !== 'Name';
+		return isNumeric(cars[0][dimension]);
 	});
-	console.log(dimensions);
+	let xScale = d3.scaleLinear()
+		.domain([0, dimensions.length - 1])
+		.range([0, 960]);
+	let yScales = {};
+	for (let dimension of dimensions) {
+		let yScale = d3.scaleLinear()
+			.domain([d3.extent(cars, function(car) { return car[dimension]; })])
+			.range([400, 0]);
+		yScales[dimension] = yScale;
+	}
 	
-	// let dimensionGs = svg.selectAll('.dimension')
-	// 		.data(dimensions)
-	// 	.enter().append('g')
-	// 		.attr('class', 'dimension')
-	// 		.attr('transform', function(dimension) {
-	// 			return 'translate(' + x(dimension) + ')';
-	// 		});
-	
-	// dimensionGs.append('g')
-	// 	.call(axis);
-	
+	/* Add axes. */
+	let dimensionGs = svg.selectAll('.dimension')
+			.data(dimensions)
+		.enter().append('g')
+			.attr('class', 'dimension')
+			.attr('transform', function(_, index) {
+				return 'translate(' + xScale(index) + ')';
+			})
+		.append('g')
+			.attr('class', 'axis')
+			.each(function(dimension) {
+				d3.select(this).call(d3.axisLeft().scale(yScales[dimension]));
+			});
+
 	// TODO: Implement
 
 	
