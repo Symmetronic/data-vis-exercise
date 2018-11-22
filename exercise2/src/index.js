@@ -18,13 +18,25 @@ function createParallelCoordinatesPlot(cars) {
 	let yScales = {};
 	for (let dimension of dimensions) {
 		let yScale = d3.scaleLinear()
-			.domain([d3.extent(cars, function(car) { return car[dimension]; })])
+			.domain(d3.extent(cars, function(car) { return car[dimension]; }))
 			.range([400, 0]);
 		yScales[dimension] = yScale;
 	}
+
+	/* Add lines. */
+	let path = function(car) {
+		return d3.line()(dimensions.map(function(dimension, index) {
+			return [xScale(index), yScales[dimension](car[dimension])];
+		}));
+	};
+	svg.selectAll('path')
+			.data(cars)
+		.enter().append('path')
+			.attr('class', 'line')
+			.attr('d', path);
 	
 	/* Add axes. */
-	let dimensionGs = svg.selectAll('.dimension')
+	svg.selectAll('.dimension')
 			.data(dimensions)
 		.enter().append('g')
 			.attr('class', 'dimension')
@@ -36,57 +48,6 @@ function createParallelCoordinatesPlot(cars) {
 			.each(function(dimension) {
 				d3.select(this).call(d3.axisLeft().scale(yScales[dimension]));
 			});
-
-	// TODO: Implement
-
-	
-	
-	// 
-	// /* X and y axes. */
-	// x.domain(dimensions = d3.keys(cars[0]).filter(function(dimension) {
-		// 	return dimension !== 'Name'
-		// 		&& (y[dimension] = d3.scaleLinear()
-		// 			.domain(d3.extent(cars, function(p) { return +p[d]; }))
-		// 			.range([height, 0]));
-		// }));
-		
-		// /* Background lines. */
-		// let background = svg.append('g')
-		// 		.attr('class', 'background')
-		// 	.selectAll('path')
-		// 		.data(cars)
-		// 	.enter().append('path')
-		// 		.attr('d', path);
-		
-		// /* Foreground lines. */
-		// let foreground = svg.append('g')
-		// 		.attr('class', 'foreground')
-		// 	.selectAll('path')
-		// 		.data('cars')
-		// 	.enter().append('path')
-		// 		.attr('d', path);
-		
-		// /* Group element for each dimension. */
-		// let g = svg.selectAll('.dimension')
-		// 		.data(dimensions)
-		// 	.enter().append('g')
-		// 		.attr('class', 'dimension')
-		// 		.attr('transform', function(dimension) { return 'translate(' + x(dimension) + ')'; });
-		
-		// /* Add an axis and title. */
-		// g.append('g')
-		// 		.attr('class', 'axis')
-		// 		.each(function(dimension) { d3.select(this).call(axis.scale(y[dimension])); })
-		// 	.append('text')
-		// 		.style('text-anchor', 'middle')
-		// 		.attr('y', -9)
-		// 		.text(function(dimension) { return d; });
-		
-		// // Returns the path for a given data point.
-		// function path(d) {
-			// 	return line(dimensions.map(function(p) { return [position(p), y[p](d[p])]; }));
-			// }
-			
 }
 
 /**

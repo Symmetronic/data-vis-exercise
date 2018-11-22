@@ -1,12 +1,6 @@
-.background path {
-    fill: none;
-    stroke: #ddd;
-    shape-rendering: crispEdges;
-}
-
-.foreground path {
-    fill: none;
-    stroke: steelblue;
+.line {
+  fill: none;
+  stroke: steelblue;
 }
 
 .axis line,
