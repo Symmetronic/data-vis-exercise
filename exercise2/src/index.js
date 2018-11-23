@@ -67,8 +67,71 @@ function createScatterPlot(cars) {
 function createStarPlot(cars) {
 	console.log('create star plot');
 	
+	/* Determine variables. */
 	let svg = createSvg();
-	// TODO: Implement
+	svg = svg.append('g')
+	.attr('transform', function() { return 'translate(200, 200)'; });
+	
+	// TODO: Update selection with interaction.
+	let selection = cars[0];
+	console.log(selection);
+	let dimensions = ['Retail Price', 'Weight', 'Len', 'Width', 'Cyl', 'Engine Size (l)'];
+
+	/* Determine scales */
+	let scales = {};
+	for (let dimension of dimensions) {
+		let scale = d3.scaleLinear()
+			.domain(d3.extent(cars, function(car) { return car[dimension]; }))
+			.range([0, 200]);
+		scales[dimension] = scale;
+	}
+
+	/* Add lines. */
+	let path = function(car) {
+		return d3.line()(dimensions.map(function(dimension, index) {
+			let angle = (index / dimensions.length) * 360 + 90;
+			angle = angle / 180 * Math.PI;
+			let radius = scales[dimension](car[dimension]);
+			return [radius * Math.cos(angle), radius * Math.sin(angle)];
+		}));
+	};
+
+	svg.selectAll('path')
+			.data([selection])
+		.enter().append('path')
+			.attr('class', 'starplot-line')
+			.attr('d', path);
+
+	/* Add axes. */
+	svg.selectAll('.dimensions')
+			.data(dimensions)
+		.enter().append('g')
+			.attr('class', 'dimension')
+		.append('g')
+			.attr('transform', function(_, index) {
+				return 'rotate(' + (index / dimensions.length) * 360 + ')';
+			})
+		.append('g')
+			.attr('class', 'axis')
+			.each(function(dimension) {
+				d3.select(this).call(d3.axisLeft().scale(scales[dimension]));
+			})
+	svg.selectAll('.dimensions')
+			.data(dimensions)
+		.enter().append('text')
+			.attr('class', 'label')
+			.attr('font-size', '11px')
+			.attr('x', function(_, index) { 
+				let angle = (index / dimensions.length) * 360 + 90;
+				angle = angle / 180 * Math.PI;
+				return 210 * Math.cos(angle);
+    		})
+			.attr('y', function(dimension, index) {
+				let angle = (index / dimensions.length) * 360 + 90;
+				angle = angle / 180 * Math.PI;
+				return 210 * Math.sin(angle);
+			})
+			.text(function(dimension) { return dimension; });
 }
 
 /**

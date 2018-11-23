@@ -3,6 +3,11 @@
   stroke: steelblue;
 }
 
+.starplot-line {
+  fill: rgba(100, 100, 100, .2);
+  stroke: steelblue;
+}
+
 .axis line,
 .axis path {
   fill: none;
