@@ -23,3 +23,8 @@
 .dimension {
   background-color: #000;
 }
+
+.label {
+  font-size: 11px;
+  text-anchor: middle;
+}

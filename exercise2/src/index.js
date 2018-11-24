@@ -47,7 +47,14 @@ function createParallelCoordinatesPlot(cars) {
 			.attr('class', 'axis')
 			.each(function(dimension) {
 				d3.select(this).call(d3.axisLeft().scale(yScales[dimension]));
-			});
+			})
+	svg.selectAll('.dimensions')
+	.data(dimensions)
+		.enter().append('text')
+			.attr('class', 'label')
+			.attr('x', function(_, index) {
+				return xScale(index);
+			}).text(function(dimension) { console.log(dimension); return dimension; });
 }
 
 /**
@@ -120,7 +127,6 @@ function createStarPlot(cars) {
 			.data(dimensions)
 		.enter().append('text')
 			.attr('class', 'label')
-			.attr('font-size', '11px')
 			.attr('x', function(_, index) { 
 				let angle = (index / dimensions.length) * 360 + 90;
 				angle = angle / 180 * Math.PI;
