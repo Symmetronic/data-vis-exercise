@@ -1,12 +1,16 @@
-/* Functions */
+/* Global variables. */
+let selection;
+let pcPlot;
+let scatterPlot;
+let starPlot;
+
+/* Functions. */
 /**
  * Creates a parallel coordinates plot.
  */
 // SOURCE: Modified from https://bl.ocks.org/jasondavies/1341281
 function createParallelCoordinatesPlot(cars) {
 	console.log('create parallel coordinates plot');
-	
-	let svg = createSvg();
 	
 	/* Determine variables. */
 	let dimensions = Object.keys(cars[0]).filter(function(dimension) {
@@ -23,38 +27,62 @@ function createParallelCoordinatesPlot(cars) {
 		yScales[dimension] = yScale;
 	}
 
-	/* Add lines. */
 	let path = function(car) {
 		return d3.line()(dimensions.map(function(dimension, index) {
 			return [xScale(index), yScales[dimension](car[dimension])];
 		}));
 	};
-	svg.selectAll('path')
-			.data(cars)
-		.enter().append('path')
-			.attr('class', 'line')
-			.attr('d', path);
+
+	if (!pcPlot) {
+		pcPlot = createSvg();
+
+		/* Add lines. */
+		pcPlot.selectAll('path')
+				.data(cars)
+			.enter().append('path')
+				.attr('class', 'line')
+				.attr('d', path)
+				.on('click', function(car) {
+					selection = car;
+					createStarPlot(cars);
+					createParallelCoordinatesPlot(cars);
+				});
 	
-	/* Add axes. */
-	svg.selectAll('.dimension')
-			.data(dimensions)
-		.enter().append('g')
-			.attr('class', 'dimension')
-			.attr('transform', function(_, index) {
-				return 'translate(' + xScale(index) + ')';
-			})
-		.append('g')
-			.attr('class', 'axis')
-			.each(function(dimension) {
-				d3.select(this).call(d3.axisLeft().scale(yScales[dimension]));
-			})
-	svg.selectAll('.dimensions')
-	.data(dimensions)
-		.enter().append('text')
-			.attr('class', 'label')
-			.attr('x', function(_, index) {
-				return xScale(index);
-			}).text(function(dimension) { console.log(dimension); return dimension; });
+		/* Add axes. */
+		pcPlot.selectAll('.dimension')
+				.data(dimensions)
+			.enter().append('g')
+				.attr('class', 'dimension')
+				.attr('transform', function(_, index) {
+					return 'translate(' + xScale(index) + ')';
+				})
+			.append('g')
+				.attr('class', 'axis')
+				.each(function(dimension) {
+					d3.select(this).call(d3.axisLeft().scale(yScales[dimension]));
+				});
+		
+		pcPlot.selectAll('.dimensions')
+		.data(dimensions)
+			.enter().append('text')
+				.attr('class', 'label')
+				.attr('x', function(_, index) {
+					return xScale(index);
+				}).text(function(dimension) { return dimension; });
+	}
+
+	if (selection) {
+		console.log('foo');
+		/* Highlight selected line. */
+		pcPlot.select('.selection').remove();
+
+		pcPlot.append('g')
+				.attr('class', 'selection')
+				.datum(selection)
+			.append('path')
+				.attr('class', 'line')
+				.attr('d', path);
+	}
 }
 
 /**
@@ -63,7 +91,7 @@ function createParallelCoordinatesPlot(cars) {
 function createScatterPlot(cars) {
 	console.log('create scatter plot');
 	
-	let svg = createSvg();
+	scatterPlot = createSvg();
 	console.log(cars);
 	// TODO: Implement
 }
@@ -73,18 +101,9 @@ function createScatterPlot(cars) {
  */
 function createStarPlot(cars) {
 	console.log('create star plot');
-	
-	/* Determine variables. */
-	let svg = createSvg();
-	svg = svg.append('g')
-	.attr('transform', function() { return 'translate(200, 200)'; });
-	
-	// TODO: Update selection with interaction.
-	let selection = cars[0];
-	console.log(selection);
-	let dimensions = ['Retail Price', 'Weight', 'Len', 'Width', 'Cyl', 'Engine Size (l)'];
 
 	/* Determine scales */
+	let dimensions = ['Retail Price', 'Weight', 'Len', 'Width', 'Cyl', 'Engine Size (l)'];
 	let scales = {};
 	for (let dimension of dimensions) {
 		let scale = d3.scaleLinear()
@@ -92,52 +111,64 @@ function createStarPlot(cars) {
 			.range([0, 200]);
 		scales[dimension] = scale;
 	}
+	
+	if (!starPlot) {
+		/* Initialize star plot. */
+		starPlot = createSvg();
+		starPlot = starPlot.append('g')
+			.attr('transform', function() { return 'translate(200, 200)'; });
+		
+		/* Add axes. */
+		starPlot.selectAll('.dimensions')
+				.data(dimensions)
+			.enter().append('g')
+				.attr('class', 'dimension')
+			.append('g')
+				.attr('transform', function(_, index) {
+					return 'rotate(' + (index / dimensions.length) * 360 + ')';
+				})
+			.append('g')
+				.attr('class', 'axis')
+				.each(function(dimension) {
+					d3.select(this).call(d3.axisLeft().scale(scales[dimension]));
+				});
+		starPlot.selectAll('.dimensions')
+				.data(dimensions)
+			.enter().append('text')
+				.attr('class', 'label')
+				.attr('x', function(_, index) { 
+					let angle = (index / dimensions.length) * 360 + 90;
+					angle = angle / 180 * Math.PI;
+					return 210 * Math.cos(angle);
+				})
+				.attr('y', function(dimension, index) {
+					let angle = (index / dimensions.length) * 360 + 90;
+					angle = angle / 180 * Math.PI;
+					return 210 * Math.sin(angle);
+				})
+				.text(function(dimension) { return dimension; });
+	}
+	
+	if (selection) {
+		/* Function to add line. */
+		let path = function(car) {
+			return d3.line()(dimensions.map(function(dimension, index) {
+				let angle = (index / dimensions.length) * 360 + 90;
+				angle = angle / 180 * Math.PI;
+				let radius = scales[dimension](car[dimension]);
+				return [radius * Math.cos(angle), radius * Math.sin(angle)];
+			}));
+		};
 
-	/* Add lines. */
-	let path = function(car) {
-		return d3.line()(dimensions.map(function(dimension, index) {
-			let angle = (index / dimensions.length) * 360 + 90;
-			angle = angle / 180 * Math.PI;
-			let radius = scales[dimension](car[dimension]);
-			return [radius * Math.cos(angle), radius * Math.sin(angle)];
-		}));
-	};
+		/* Remove old line. */
+		starPlot.select('.starplot-line').remove();
 
-	svg.selectAll('path')
-			.data([selection])
-		.enter().append('path')
+		/* Add new line. */
+		starPlot.append('path')
+				.datum(selection)
 			.attr('class', 'starplot-line')
 			.attr('d', path);
-
-	/* Add axes. */
-	svg.selectAll('.dimensions')
-			.data(dimensions)
-		.enter().append('g')
-			.attr('class', 'dimension')
-		.append('g')
-			.attr('transform', function(_, index) {
-				return 'rotate(' + (index / dimensions.length) * 360 + ')';
-			})
-		.append('g')
-			.attr('class', 'axis')
-			.each(function(dimension) {
-				d3.select(this).call(d3.axisLeft().scale(scales[dimension]));
-			})
-	svg.selectAll('.dimensions')
-			.data(dimensions)
-		.enter().append('text')
-			.attr('class', 'label')
-			.attr('x', function(_, index) { 
-				let angle = (index / dimensions.length) * 360 + 90;
-				angle = angle / 180 * Math.PI;
-				return 210 * Math.cos(angle);
-    		})
-			.attr('y', function(dimension, index) {
-				let angle = (index / dimensions.length) * 360 + 90;
-				angle = angle / 180 * Math.PI;
-				return 210 * Math.sin(angle);
-			})
-			.text(function(dimension) { return dimension; });
+	}
 }
 
 /**
