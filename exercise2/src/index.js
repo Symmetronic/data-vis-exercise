@@ -77,12 +77,86 @@ function createParallelCoordinatesPlot() {
  * Creates a scatter plot.
  */
 function createScatterPlot() {
+	// setup x
+	var xValue = function(car) { return car["Retail Price"];}, // data -> value
+		xScale = d3.scaleLinear().range([0, width]), // value -> display
+	    xMap = function(car) { return xScale(xValue(car));}, // data -> display
+	    xAxis = d3.axisBottom(xScale);
+
+	// setup y
+	var yValue = function(car) { return car["City Miles Per Gallon"];}, // data -> value
+	    yScale = d3.scaleLinear().range([height, 0]), // value -> display
+	    yMap = function(car) { return yScale(yValue(car));}, // data -> display
+	    yAxis = d3.axisLeft(yScale);
+	    
+	 // setup fill color
+	 var cValue = function(d) { return d.Manufacturer;},
+	    color = d3.scaleOrdinal(d3.schemeCategory10);    
+
 	let svg = createSvg();
 
 	// TODO: Implement
-	getData();
+	let carData = getData();
+	
+	scatterCreateAxes(svg, xAxis, yAxis);
+	scatterDrawDots(svg, carData);
 
 }
+
+
+
+function scatterCreateAxes(svg, xAxis, yAxis) {
+	// x-axis
+	  svg.append("g")
+	      .attr("class", "x axis")
+	      .attr("transform", "translate(0," + height + ")")
+	      .call(xAxis)
+	    .append("text")
+	      .attr("class", "label")
+	      .attr("x", width)
+	      .attr("y", -6)
+	      .style("text-anchor", "end")
+	      .text("Retail Price");
+	  
+	  // y-axis
+	  svg.append("g")
+	      .attr("class", "y axis")
+	      .call(yAxis)
+	    .append("text")
+	      .attr("class", "label")
+	      .attr("transform", "rotate(-90)")
+	      .attr("y", 6)
+	      .attr("dy", ".71em")
+	      .style("text-anchor", "end")
+	      .text("City Miles Per Gallon");
+}
+
+function scatterDrawDots(svg, data) {
+	// draw dots
+	  svg.selectAll(".dot")
+	      .data(data)
+	    .enter().append("circle")
+	      .attr("class", "dot")
+	      .attr("r", 3.5)
+	      .attr("cx", xMap)
+	      .attr("cy", yMap)
+	      .style("fill", function(d) { return color(cValue(d));}) 
+	      .on("mouseover", function(d) {
+	          tooltip.transition()
+	               .duration(200)
+	               .style("opacity", .9);
+	          tooltip.html(d["Cereal Name"] + "<br/> (" + xValue(d) 
+		        + ", " + yValue(d) + ")")
+	               .style("left", (d3.event.pageX + 5) + "px")
+	               .style("top", (d3.event.pageY - 28) + "px");
+	      })
+	      .on("mouseout", function(d) {
+	          tooltip.transition()
+	               .duration(500)
+	               .style("opacity", 0);
+	      });
+}
+
 
 /**
  * Creates a star plot.
@@ -104,6 +178,7 @@ function createSvg() {
 			.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 }
 
+// TODO: 
 function getData() {
 	d3.csv("cars.csv").then(function(carData) {
 		carData.forEach(function(car) {
@@ -129,9 +204,9 @@ function getData() {
  * Runs the program.
  */
 function main() {
-	createParallelCoordinatesPlot();
+	//createParallelCoordinatesPlot();
 	createScatterPlot();
-	createStarPlot();
+	//createStarPlot();
 }
 
 window.onload = function() {
