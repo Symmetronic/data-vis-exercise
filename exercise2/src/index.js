@@ -88,6 +88,7 @@ function createParallelCoordinatesPlot(cars) {
 
 /**
  * Creates a scatter plot.
+ source: modified from http://bl.ocks.org/weiglemc/6185069
  */
 function createScatterPlot(cars) {
 
