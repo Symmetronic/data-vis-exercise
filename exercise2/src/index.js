@@ -46,7 +46,7 @@ function createParallelCoordinatesPlot(cars) {
 					selection = car;
 					createStarPlot(cars);
 					createParallelCoordinatesPlot(cars);
-					//createScatterPlot(cars);
+					createScatterPlot(cars);
 				});
 	
 		/* Add axes. */
@@ -98,46 +98,51 @@ function createScatterPlot(cars) {
 		left: 50
 	};
 
+
+
+	const width = 900 - margin.left - margin.right;				//scatterPlot.width - margin.left - margin.right;
+	const height = 400;											//scatterPlot.height - margin.top - margin.bottom;
+
+	var tooltip = d3.select("body").append("div")
+    		.attr("class", "tooltip")
+    		.style("opacity", 0);
+
+	// setup x
+	var xValue = function(car) { return car["Retail Price"]; }, // data -> value
+		xScale = d3.scaleLinear().range([0, width]), // value -> display
+		xMap = function(car) { return xScale(xValue(car));}, // data -> display
+		xAxis = d3.axisBottom(xScale);
+		console.log("xMap:" + xMap);
+
+
+	// setup y
+	var yValue = function(car) { return car["Dealer Cost"]; }, // data -> value
+		yScale = d3.scaleLinear().range([height, 0]), // value -> display
+		yMap = function(car) { return yScale(yValue(car));}, // data -> display
+		yAxis = d3.axisLeft(yScale);
+		console.log("yMap:" + yMap);
+		    
+	// setup fill color
+	var cValue = function(car) { return car.Type; },
+		color = d3.scaleOrdinal(d3.schemeCategory10);  
+
+	// setup shape
+	var sValue = function(car) { return car["Horsepower(HP)"]; },
+		shaoe = d3.scaleOrdinal(d3.shape)
+
+	// don't want dots overlapping axis, so add in buffer to data domain
+  	xScale.domain([d3.min(cars, xValue)-1, d3.max(cars, xValue)+1]);
+  	yScale.domain([d3.min(cars, yValue)-1, d3.max(cars, yValue)+1]);
+
+
+
+
 	console.log('create scatter plot');
 	console.log(cars);
 
 	if (!scatterPlot) {
 		scatterPlot = createSvg();
 		scatterPlot.data(cars);
-
-
-		const width = 900 - margin.left - margin.right				//scatterPlot.width - margin.left - margin.right;
-		const height = 400											//scatterPlot.height - margin.top - margin.bottom;
-
-		var tooltip = d3.select("body").append("div")
-    		.attr("class", "tooltip")
-    		.style("opacity", 0);
-
-		// setup x
-		var xValue = function(car) { return car["Retail Price"]; }, // data -> value
-			xScale = d3.scaleLinear().range([0, width]), // value -> display
-		    xMap = function(car) { return xScale(xValue(car));}, // data -> display
-		    xAxis = d3.axisBottom(xScale);
-		    console.log("xMap:" + xMap);
-
-
-		// setup y
-		var yValue = function(car) { return car["Dealer Cost"]; }, // data -> value
-		    yScale = d3.scaleLinear().range([height, 0]), // value -> display
-		    yMap = function(car) { return yScale(yValue(car));}, // data -> display
-		    yAxis = d3.axisLeft(yScale);
-		    console.log("yMap:" + yMap);
-		    
-		// setup fill color
-		var cValue = function(car) { return car.Type; },
-		    color = d3.scaleOrdinal(d3.schemeCategory10);  
-
-		// setup shape
-		var sValue = function(car) { return car["Horsepower(HP)"]; }
-
-		// don't want dots overlapping axis, so add in buffer to data domain
-  		xScale.domain([d3.min(cars, xValue)-1, d3.max(cars, xValue)+1]);
-  		yScale.domain([d3.min(cars, yValue)-1, d3.max(cars, yValue)+1]);
 
 		// draw x-axis
 		scatterPlot.append("g")
@@ -146,7 +151,7 @@ function createScatterPlot(cars) {
 		      .call(xAxis)
 		    .append("text")
 		      .attr("class", "label")
-		      .text("Retail Price")
+		      .text("Retail Price [€]")
 		      .style("fill", "black")		      
 		      .attr("x", width)
 		      .attr("y", -6)
@@ -163,7 +168,7 @@ function createScatterPlot(cars) {
 		      	.attr("y", 6)
 		      	.attr("dy", ".71em")
 		      	.style("text-anchor", "end")
-		      	.text("Dealer Cost")
+		      	.text("Dealer Cost [€]")
 		    	.style("fill", "black");		  
 
 
@@ -177,12 +182,13 @@ function createScatterPlot(cars) {
 		      	.attr("cy", yMap)
 		      	.attr("transform", "translate(" + margin.left + ", 0)")
 		      	.style("fill", function(car) { return color(cValue(car));}) 
+		      	//.style("shape", function(car) { return shape(sValue(car));})
 		      	.on("mouseover", function(car) {
 		          	tooltip.transition()
 		               .duration(200)
 		               .style("opacity", .9);
-		          tooltip.html(car.Name + "<br/> (Retail:" + xValue(car) 
-			        + ", Dealer:" + yValue(car) + ")")
+		          	tooltip.html(car.Name + "<br/> (Dealer:" + yValue(car) 
+			        	+ " € , Retail:" + xValue(car) + " €)")
 		               .style("left", (d3.event.pageX + 5) + "px")
 		               .style("top", (d3.event.pageY - 28) + "px");
 		      })
@@ -190,9 +196,83 @@ function createScatterPlot(cars) {
 		          tooltip.transition()
 		               .duration(500)
 		               .style("opacity", 0);
+		      })
+		      .on("click", function(car) {
+		      		selection = car;
+		      		createStarPlot(cars);
+					createParallelCoordinatesPlot(cars);
+					createScatterPlot(cars);
 		      });
-		  }
-	//let carData = getData();
+		
+
+		// draw legend
+  		var legend = scatterPlot.selectAll(".legend")
+      			.data(color.domain())
+    		.enter().append("g")
+      			.attr("class", "legend")
+      			.attr("transform", function(car, i) { return "translate(50," + (i * 20) + ")"; });
+
+  		// draw legend colored rectangles
+  		legend.append("rect")
+      			.attr("x", width - 18)
+      			.attr("width", 18)
+      			.attr("height", 18)
+      			.style("fill", color);
+
+  		// draw legend text
+  		legend.append("text")
+      			.attr("x", width - 24)
+      			.attr("y", 9)
+      			.attr("dy", ".35em")
+      			.style("text-anchor", "end")
+      			.text(function(car) { return car;});
+
+      	
+      }
+
+      if (selection) {
+      		console.log("foo twoo");
+			/* Remove old selected dot. */
+			scatterPlot.select(".dot-selected").remove();
+			scatterPlot.select(".info-selected").remove();
+
+			/* Add selected dot. */
+			scatterPlot.append("circle")
+					.datum(selection)
+					.attr("class", "dot-selected")
+					.attr("r", 10)
+					.attr("cx", xMap)
+		      		.attr("cy", yMap)
+					.attr("transform", "translate(" + margin.left + ", 0)");
+
+			var info = scatterPlot.append("g")
+					.attr("class", "info-selected")
+				
+			info.append("text")
+					.attr("class", "text-selected")
+					.datum(selection)
+					.html("Currently selected: " + selection.Name)
+					.attr("x", 150)
+					.attr("y", 50)
+					.style("fill", "black")
+					.style("font-weight", "bold")
+			
+			info.append("text")
+					.attr("class", "text-selected")
+					.text("Dealer Cost: " + selection["Dealer Cost"] + " €")
+					.attr("x", 160)
+					.attr("y", 70)
+					.style("fill", "black")
+					.style("font-size", "12px")
+				
+			info.append("text")
+					.attr("class", "text-selected")
+					.text("Retail Price: " + selection["Retail Price"] + " €")
+					.attr("x", 160)
+					.attr("y", 85)
+					.style("fill", "black")
+					.style("font-size", "12px");
+	}
 }
 
 
