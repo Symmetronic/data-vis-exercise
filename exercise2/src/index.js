@@ -46,6 +46,7 @@ function createParallelCoordinatesPlot(cars) {
 					selection = car;
 					createStarPlot(cars);
 					createParallelCoordinatesPlot(cars);
+					//createScatterPlot(cars);
 				});
 	
 		/* Add axes. */
@@ -88,85 +89,110 @@ function createParallelCoordinatesPlot(cars) {
 /**
  * Creates a scatter plot.
  */
-function createScatterPlot() {
-	// setup x
-	var xValue = function(car) { return car["Retail Price"];}, // data -> value
-		xScale = d3.scaleLinear().range([0, width]), // value -> display
-	    xMap = function(car) { return xScale(xValue(car));}, // data -> display
-	    xAxis = d3.axisBottom(xScale);
+function createScatterPlot(cars) {
 
-	// setup y
-	var yValue = function(car) { return car["City Miles Per Gallon"];}, // data -> value
-	    yScale = d3.scaleLinear().range([height, 0]), // value -> display
-	    yMap = function(car) { return yScale(yValue(car));}, // data -> display
-	    yAxis = d3.axisLeft(yScale);
-	    
-	 // setup fill color
-	 var cValue = function(d) { return d.Manufacturer;},
-	    color = d3.scaleOrdinal(d3.schemeCategory10);    
+	const margin = {
+		top: 50,
+		bottom: 0,
+		right: 0,
+		left: 50
+	};
 
-	let svg = createSvg();
+	console.log('create scatter plot');
+	console.log(cars);
 
-	// TODO: Implement
-	let carData = getData();
-	
-	scatterCreateAxes(svg, xAxis, yAxis);
-	scatterDrawDots(svg, carData);
-
-}
+	if (!scatterPlot) {
+		scatterPlot = createSvg();
+		scatterPlot.data(cars);
 
 
+		const width = 900 - margin.left - margin.right				//scatterPlot.width - margin.left - margin.right;
+		const height = 400											//scatterPlot.height - margin.top - margin.bottom;
 
-function scatterCreateAxes(svg, xAxis, yAxis) {
-	// x-axis
-	  svg.append("g")
-	      .attr("class", "x axis")
-	      .attr("transform", "translate(0," + height + ")")
-	      .call(xAxis)
-	    .append("text")
-	      .attr("class", "label")
-	      .attr("x", width)
-	      .attr("y", -6)
-	      .style("text-anchor", "end")
-	      .text("Retail Price");
-	  
-	  // y-axis
-	  svg.append("g")
-	      .attr("class", "y axis")
-	      .call(yAxis)
-	    .append("text")
-	      .attr("class", "label")
-	      .attr("transform", "rotate(-90)")
-	      .attr("y", 6)
-	      .attr("dy", ".71em")
-	      .style("text-anchor", "end")
-	      .text("City Miles Per Gallon");
-}
+		var tooltip = d3.select("body").append("div")
+    		.attr("class", "tooltip")
+    		.style("opacity", 0);
 
-function scatterDrawDots(svg, data) {
-	// draw dots
-	  svg.selectAll(".dot")
-	      .data(data)
-	    .enter().append("circle")
-	      .attr("class", "dot")
-	      .attr("r", 3.5)
-	      .attr("cx", xMap)
-	      .attr("cy", yMap)
-	      .style("fill", function(d) { return color(cValue(d));}) 
-	      .on("mouseover", function(d) {
-	          tooltip.transition()
-	               .duration(200)
-	               .style("opacity", .9);
-	          tooltip.html(d["Cereal Name"] + "<br/> (" + xValue(d) 
-		        + ", " + yValue(d) + ")")
-	               .style("left", (d3.event.pageX + 5) + "px")
-	               .style("top", (d3.event.pageY - 28) + "px");
-	      })
-	      .on("mouseout", function(d) {
-	          tooltip.transition()
-	               .duration(500)
-	               .style("opacity", 0);
-	      });
+		// setup x
+		var xValue = function(car) { return car["Retail Price"]; }, // data -> value
+			xScale = d3.scaleLinear().range([0, width]), // value -> display
+		    xMap = function(car) { return xScale(xValue(car));}, // data -> display
+		    xAxis = d3.axisBottom(xScale);
+		    console.log("xMap:" + xMap);
+
+
+		// setup y
+		var yValue = function(car) { return car["Dealer Cost"]; }, // data -> value
+		    yScale = d3.scaleLinear().range([height, 0]), // value -> display
+		    yMap = function(car) { return yScale(yValue(car));}, // data -> display
+		    yAxis = d3.axisLeft(yScale);
+		    console.log("yMap:" + yMap);
+		    
+		// setup fill color
+		var cValue = function(car) { return car.Type; },
+		    color = d3.scaleOrdinal(d3.schemeCategory10);  
+
+		// setup shape
+		var sValue = function(car) { return car["Horsepower(HP)"]; }
+
+		// don't want dots overlapping axis, so add in buffer to data domain
+  		xScale.domain([d3.min(cars, xValue)-1, d3.max(cars, xValue)+1]);
+  		yScale.domain([d3.min(cars, yValue)-1, d3.max(cars, yValue)+1]);
+
+		// draw x-axis
+		scatterPlot.append("g")
+		      .attr("class", "x axis")
+		      .attr("transform", "translate(" + margin.left + "," + 400 + ")")
+		      .call(xAxis)
+		    .append("text")
+		      .attr("class", "label")
+		      .text("Retail Price")
+		      .style("fill", "black")		      
+		      .attr("x", width)
+		      .attr("y", -6)
+		      .style("text-anchor", "end");
+		  
+		// draw y-axis
+		scatterPlot.append("g")
+		      	.attr("class", "y axis")
+		      	.attr("transform", "translate(" + margin.left + ", 0)")
+		      	.call(yAxis)
+		    .append("text")
+		      	.attr("class", "label")		    
+		    	.attr("transform", "rotate(-90)")
+		      	.attr("y", 6)
+		      	.attr("dy", ".71em")
+		      	.style("text-anchor", "end")
+		      	.text("Dealer Cost")
+		    	.style("fill", "black");		  
+
+
+		  // draw dots
+		  scatterPlot.selectAll(".dot")
+		        .data(cars)
+		    .enter().append("circle")
+		      	.attr("class", "dot")
+		      	.attr("r", 3.5)
+		      	.attr("cx", xMap)
+		      	.attr("cy", yMap)
+		      	.attr("transform", "translate(" + margin.left + ", 0)")
+		      	.style("fill", function(car) { return color(cValue(car));}) 
+		      	.on("mouseover", function(car) {
+		          	tooltip.transition()
+		               .duration(200)
+		               .style("opacity", .9);
+		          tooltip.html(car.Name + "<br/> (Retail:" + xValue(car) 
+			        + ", Dealer:" + yValue(car) + ")")
+		               .style("left", (d3.event.pageX + 5) + "px")
+		               .style("top", (d3.event.pageY - 28) + "px");
+		      })
+		      .on("mouseout", function(car) {
+		          tooltip.transition()
+		               .duration(500)
+		               .style("opacity", 0);
+		      });
+		  }
+	//let carData = getData();
 }
 
 
