@@ -1,0 +1,76 @@
+.line {
+  fill: none;
+  stroke: lightgray;
+}
+
+.selection .line {
+  stroke: red;
+}
+
+.starplot-line {
+  fill: rgba(100, 100, 100, .2);
+  stroke: red;
+}
+
+.axis line,
+.axis path {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.axis text {
+  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+  cursor: move;
+}
+
+.dimension {
+  background-color: #000;
+}
+
+.label {
+  font-size: 11px;
+  text-anchor: middle;
+}
+
+.background path {
+    fill: none;
+    stroke: #ddd;
+    shape-rendering: crispEdges;
+}
+
+.foreground path {
+    fill: none;
+    stroke: steelblue;
+}
+
+.dot {
+  stroke: #000;
+}
+
+.dot-selected {
+  stroke: #000;
+  stroke-width: 2pt;
+  fill: red;
+}
+
+.tooltip {
+  position: absolute;
+  width: 200px;
+  height: 28px;
+  margin-top: 30px;
+  margin-left: 20px;
+  pointer-events: none;
+  font-family: "Arial";
+  font-size: 11px;
+}
+
+.legend text {
+  font-family: "Arial";
+  font-size: 12px;
+}
+
+.text-selected {
+  font-family: "Arial";
+  font-size: 14px;
+}
