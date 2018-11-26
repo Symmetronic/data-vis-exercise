@@ -73,7 +73,6 @@ function createParallelCoordinatesPlot(cars) {
 	}
 
 	if (selection) {
-		console.log('foo');
 		/* Highlight selected line. */
 		pcPlot.select('.selection').remove();
 
@@ -91,6 +90,7 @@ function createParallelCoordinatesPlot(cars) {
  source: modified from http://bl.ocks.org/weiglemc/6185069
  */
 function createScatterPlot(cars) {
+	console.log('create scatter plot');
 
 	const margin = {
 		top: 50,
@@ -113,7 +113,6 @@ function createScatterPlot(cars) {
 		xScale = d3.scaleLinear().range([0, width]), // value -> display
 		xMap = function(car) { return xScale(xValue(car));}, // data -> display
 		xAxis = d3.axisBottom(xScale);
-		console.log("xMap:" + xMap);
 
 
 	// setup y
@@ -121,7 +120,6 @@ function createScatterPlot(cars) {
 		yScale = d3.scaleLinear().range([height, 0]), // value -> display
 		yMap = function(car) { return yScale(yValue(car));}, // data -> display
 		yAxis = d3.axisLeft(yScale);
-		console.log("yMap:" + yMap);
 		    
 	// setup fill color
 	var cValue = function(car) { return car.Type; },
@@ -135,11 +133,6 @@ function createScatterPlot(cars) {
   	xScale.domain([d3.min(cars, xValue)-1, d3.max(cars, xValue)+1]);
   	yScale.domain([d3.min(cars, yValue)-1, d3.max(cars, yValue)+1]);
 
-
-
-
-	console.log('create scatter plot');
-	console.log(cars);
 
 	if (!scatterPlot) {
 		scatterPlot = createSvg();
@@ -232,7 +225,6 @@ function createScatterPlot(cars) {
       }
 
       if (selection) {
-      		console.log("foo twoo");
 			/* Remove old selected dot. */
 			scatterPlot.select(".dot-selected").remove();
 			scatterPlot.select(".info-selected").remove();
