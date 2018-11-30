@@ -1,3 +1,4 @@
+/* General styles */
 html, body {
     height: 100%;
 }
@@ -9,10 +10,19 @@ html, body {
     width: 100%;
 }
 
-.node-link {
+/* Node-link graph. */
+#node-link {
     height: 500px;
 }
+#node-link .node {
+    font-size: 1rem;
+}
+#node-link .link {
+    fill: none;
+    stroke: #000;
+}
 
-.sunburst {
+/* Sunburst. */
+#sunburst {
     height: 500px;
 }
