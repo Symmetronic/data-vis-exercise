@@ -19,40 +19,18 @@ function createNodeLinkGraph(tree) {
 	/* Constants */
 	const NODE_SIZE = 5;
 
-	let svg = createSvg('node-link');
-	let layout = d3.tree()
-		.size([WIDTH - MARGIN.left - MARGIN.right,
-			HEIGHT - MARGIN.top - MARGIN.bottom]);
-	let nodes = layout(d3.hierarchy(tree)).descendants();
-	let links = nodes.slice(1);
-
-	/* Create the link lines. */
-	svg.selectAll('.link')
-			.data(links)
-		.enter().append('path')
-			.attr('class', 'link')
-			.attr('d', function(d) {
-				return 'M' + d.x + ',' + d.y
-				    + 'L' + d.parent.x + ',' + d.parent.y;
-			});
-
-	/* Create the nodes. */
-	let node = svg.selectAll('.node')
-			.data(nodes)
-		.enter().append('g')
-			.attr('class', 'node')
-		
-	node.append('circle')
-		.attr('cx', d => d.x)
-		.attr('cy', d => d.y)
-		.attr('r', NODE_SIZE);
-
-	node.append('text')
-		.attr('x', d => d.x)
-		.attr('dx', 5)
-		.attr('y', d => d.y)
-		.attr('dy', -5)
-		.text(d => d.data.name);
+	/* Configure graph. */
+	let chart = nodeLinkGraph()
+		.width(WIDTH)
+		.height(HEIGHT)
+		.margin(MARGIN)
+		.nodeSize(NODE_SIZE)
+		.zoomExtent([0.5, 5]);
+	
+	/* Create visualization. */
+	d3.select('#node-link')
+		.datum(tree)
+		.call(chart);
 	
 	// TODO: Implement!
 }
