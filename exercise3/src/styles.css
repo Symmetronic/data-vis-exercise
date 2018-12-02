@@ -17,16 +17,16 @@ html, body {
 #node-link .node {
     font-size: 1rem;
 }
-#node-link .node .label, #node-link .node .description {
+#node-link .node .label, #node-link .node .description, #node-link .node .stackoverflow {
     transition: opacity 1s ease;
 }
 #node-link .overview .node .label {
     opacity: 0.0;
 }
-#node-link .node .description {
+#node-link .node .description, #node-link .node .stackoverflow {
     opacity: 0.0;
 }
-#node-link .details .node .description {
+#node-link .details .node .description, #node-link .details .node .stackoverflow {
     opacity: 1.0;
 }
 #node-link .link {

@@ -15,7 +15,7 @@ function nodeLinkGraph(config) {
             }
             : config.margin,
         nodeSize = (!config || !config.nodeSize)
-            ? 5
+            ? 10
             : config.nodeSize,
         width = (!config || !config.width)
             ? 1920
@@ -88,31 +88,74 @@ function nodeLinkGraph(config) {
                     });
                     
             /* Create the nodes. */
-            let node = svg.selectAll('.node')
-                    .data(nodes)
-                .enter().append('g')
+            let stackoverflowExtent = [0, d3.max(nodes, node => (node.data && node.data.stackoverflow)
+                ? node.data.stackoverflow
+                : 0)
+            ];
+
+            nodes.forEach(function (d) {
+                /* Append the node. */
+                let node = svg.append('g')
+                    .datum(d)
                     .attr('class', 'node');
+                
+                if (d.data && d.data.free) {
+                    /* Display circle for free. */
+                    node.append('circle')
+                        .attr('cx', d => d.x)
+                        .attr('cy', d => d.y)
+                        .attr('r', nodeSize/2)
+                        .attr('fill', d => {
+                            let percentage = (d.data && d.data.stackoverflow)
+                                ? d.data.stackoverflow / stackoverflowExtent[1]
+                                : 0;
+                            return 'rgb(0, 0, ' + 255 * percentage + ')';
+                        })
+                } else {
+                    /* Display rectangles for non free. */
+                    node.append('rect')
+                        .attr('x', d => d.x - nodeSize/2)
+                        .attr('y', d => d.y - nodeSize/2)
+                        .attr('width', nodeSize)
+                        .attr('height', nodeSize)
+                        .attr('fill', d => {
+                            let percentage = (d.data && d.data.stackoverflow)
+                                ? d.data.stackoverflow / stackoverflowExtent[1]
+                                : 0;
+                            return 'rgb(0, 0, ' + 255 * percentage + ')';
+                        });
+                }
 
-            node.append('circle')
-            .attr('cx', d => d.x)
-            .attr('cy', d => d.y)
-            .attr('r', nodeSize);
-
-            node.append('text')
-                .attr('class', 'label')
-                .attr('x', d => d.x)
-                .attr('dx', 5)
-                .attr('y', d => d.y)
-                .attr('dy', -15)
-                .text(d => d.data.name);
-            
-            node.append('text')
-                .attr('class', 'description')
-                .attr('x', d => d.x)
-                .attr('dx', 5)
-                .attr('y', d => d.y)
-                .attr('dy', 15)
-                .text(d => d.data.description);
+                /* Append label. */
+                node.append('text')
+                    .attr('class', 'label')
+                    .attr('x', d => d.x)
+                    .attr('dx', 5)
+                    .attr('y', d => d.y)
+                    .attr('dy', -15)
+                    .text(d => d.data.name);
+                
+                /* Append description. */
+                node.append('text')
+                    .attr('class', 'description')
+                    .attr('x', d => d.x)
+                    .attr('dx', 5)
+                    .attr('y', d => d.y)
+                    .attr('dy', 15)
+                    .text(d => d.data.description);
+                
+                /* Append Stackoverflow value. */
+                node.append('text')
+                    .attr('class', 'stackoverflow')
+                    .attr('x', d => d.x)
+                    .attr('dx', 5)
+                    .attr('y', d => d.y)
+                    .attr('dy', 45)
+                    .text(d => (d.data.stackoverflow)
+                        ? String(d.data.stackoverflow)
+                        : ''
+                    )
+            });
         });
     };
 

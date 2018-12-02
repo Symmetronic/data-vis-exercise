@@ -17,7 +17,7 @@ function createNodeLinkGraph(tree) {
 	console.log('create node-link graph');
 
 	/* Constants */
-	const NODE_SIZE = 5;
+	const NODE_SIZE = 15;
 
 	/* Configure graph. */
 	let chart = nodeLinkGraph()
