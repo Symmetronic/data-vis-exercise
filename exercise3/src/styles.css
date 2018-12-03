@@ -37,4 +37,29 @@ html, body {
 /* Sunburst. */
 #sunburst {
     height: 500px;
+    width: 1920px;
+}
+
+#info {
+  position: relative;
+  top: 70%;
+  left: 44.8%;
+  width: 200px;
+  height: 150px;
+  font-family: Verdana;
+  text-align: center;
+  text-anchor: middle;
+  color: #fff;
+  z-index: 10;
+  overflow: hidden;
+}
+
+#value {
+  font-size: 1.8em;
+  left: -50%;
+}
+
+#description {
+    font-size: 0.7em;
+    left: -50%;
 }

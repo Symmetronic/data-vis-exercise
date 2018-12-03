@@ -42,8 +42,16 @@ function createNodeLinkGraph(tree) {
 function createSunburstChart(tree) {
 	console.log('create sunburst');
 
-	let svg = createSvg('sunburst');
+	//let svg = createSvg('sunburst');
 	// TODO: Implement!
+
+	let chart = sunburstChart()
+		.width(WIDTH)
+		.height(500);
+
+	d3.select('#sunburst')
+		.datum(tree)
+		.call(chart);
 }
 
 /*
